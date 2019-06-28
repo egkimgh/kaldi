@@ -285,8 +285,8 @@ if [ $stage -le 16 ]; then
     --trainer.max-param-change=2.0 \
     --trainer.num-epochs=12 \
     --trainer.frames-per-iter=3000000 \
-    --trainer.optimization.num-jobs-initial=2 \
-    --trainer.optimization.num-jobs-final=12 \
+    --trainer.optimization.num-jobs-initial=8 \
+    --trainer.optimization.num-jobs-final=8 \
     --trainer.optimization.initial-effective-lrate=0.005 \
     --trainer.optimization.final-effective-lrate=0.0005 \
     --trainer.optimization.shrink-value=1.0 \

@@ -51,19 +51,21 @@ else
     echo "Chainer is not installed. Please run ../../../tools/extras/install_chainer.sh"
 fi
 
-if [ ! -d local/nn-gev ]; then
-    cd local/
-    git clone https://github.com/fgnt/nn-gev.git
-    cd nn-gev/
-    git checkout 3a039a4b707419fab05deb9679b41360ea92d779 .
-    git apply ../fix_read_sim_from_different_directory.patch
-    cd ../../
-else
-    cd local/nn-gev/
-    git checkout 3a039a4b707419fab05deb9679b41360ea92d779 .
-    git apply ../fix_read_sim_from_different_directory.patch
-    cd ../../
-fi
+# 190626, the revised nn-gev was already commited so you don't need the following codes.
+#       : revised version is merged with 3a039 with e7f78 for v2 chainer
+#if [ ! -d local/nn-gev ]; then
+#    cd local/
+#    git clone https://github.com/fgnt/nn-gev.git
+#    cd nn-gev/
+#    git checkout 3a039a4b707419fab05deb9679b41360ea92d779 .
+#    git apply ../fix_read_sim_from_different_directory.patch
+#    cd ../../
+#else
+#    cd local/nn-gev/
+#    git checkout 3a039a4b707419fab05deb9679b41360ea92d779 .
+#    git apply ../fix_read_sim_from_different_directory.patch
+#    cd ../../
+#fi
 
 mkdir -p $odir
 set +e

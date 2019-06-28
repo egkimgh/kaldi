@@ -28,7 +28,7 @@ set -o pipefail
 # If you use kaldi scripts distributed in the CHiME3 data,
 # chime3_data=`pwd`/../..
 # Otherwise, please specify it, e.g.,
-chime3_data=/data2/archive/speech-db/original/public/CHiME3
+chime3_data=/DB/CHiME3
 
 case $(hostname) in *.clsp.jhu.edu)
   chime3_data=/export/corpora5/CHiME3 ;; # JHU,
