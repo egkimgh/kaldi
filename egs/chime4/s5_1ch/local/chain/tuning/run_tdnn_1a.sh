@@ -60,6 +60,8 @@ remove_egs=true
 #decode options
 test_online_decoding=false  # if true, it will run the last decoding stage.
 decode_only=false # if true, it wouldn't train a model again and will only do decoding
+
+use_fbank=true
 # End configuration section.
 echo "$0 $@"  # Print the command line for logging
 
@@ -70,6 +72,16 @@ echo "$0 $@"  # Print the command line for logging
 
 enhan=$1
 test_sets="dt05_real_$enhan dt05_simu_$enhan et05_real_$enhan et05_simu_$enhan"
+
+if [ $use_fbank == "true" ]; then
+  featdir=fbank
+  featcmd=make_fbank
+  featcfg="--fbank-config conf/fbank.conf"
+else
+  featdir=mfcc
+  featcmd=make_mfcc
+  featcfg="--mfcc-config conf/mfcc_hires.conf"
+fi
 
 if ! cuda-compiled; then
   cat <<EOF && exit 1
@@ -116,7 +128,7 @@ if $decode_only; then
 
   # extracting hires features
   for datadir in ${test_sets}; do
-    steps/make_mfcc.sh --nj $nj --mfcc-config conf/mfcc_hires.conf \
+    steps/$featcmd.sh --nj $nj $featcfg \
       --cmd "$train_cmd" data/${datadir}_hires
     steps/compute_cmvn_stats.sh data/${datadir}_hires
     utils/fix_data_dir.sh data/${datadir}_hires
@@ -361,7 +373,7 @@ if $test_online_decoding && [ $stage -le 19 ]; then
   # note: if the features change (e.g. you add pitch features), you will have to
   # change the options of the following command line.
   steps/online/nnet3/prepare_online_decoding.sh \
-    --mfcc-config conf/mfcc_hires.conf \
+    $featcfg \
     $lang exp/nnet3${nnet3_affix}/extractor ${dir} ${dir}_online
 
   rm $dir/.error 2>/dev/null || true

@@ -15,6 +15,7 @@
 # Config:
 nj=30
 stage=0 # resume training with --stage=N
+use_fbank=true
 
 . utils/parse_options.sh || exit 1;
 
@@ -50,15 +51,22 @@ if [ $stage -le 0 ]; then
   local/simu_enhan_chime3_data_prep.sh $enhan $enhan_data
 fi
 
-# Now make MFCC features for clean, close, and noisy data
-# mfccdir should be some place with a largish disk where you
-# want to store MFCC features.
-mfccdir=mfcc/$enhan
+# Now make features for clean, close, and noisy data
+# featdir should be some place with a largish disk where you
+# want to store the features.
+if [ $use_fbank == "true" ]; then
+  featdir=fbank/$enhan
+  featcmd=make_fbank
+else
+  featdir=mfcc/$enhan
+  featcmd=make_mfcc
+fi
+
 if [ $stage -le 1 ]; then
   for x in dt05_real_$enhan et05_real_$enhan tr05_real_$enhan dt05_simu_$enhan et05_simu_$enhan tr05_simu_$enhan; do
-    steps/make_mfcc.sh --nj 8 --cmd "$train_cmd" \
-      data/$x exp/make_mfcc/$x $mfccdir
-    steps/compute_cmvn_stats.sh data/$x exp/make_mfcc/$x $mfccdir
+    steps/$featcmd.sh --nj 8 --cmd "$train_cmd" \
+      data/$x exp/$featcmd/$x $featdir
+    steps/compute_cmvn_stats.sh data/$x exp/$featcmd/$x $featdir
   done
 fi
 

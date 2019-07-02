@@ -19,6 +19,7 @@ train=noisy # noisy data multi-condition training
 eval_flag=true # make it true when the evaluation data are released
 add_enhanced_data=true # make it true when you want to add enhanced data into training set
 decode_only=false # if true, it wouldn't train a model again and will only do decoding
+use_fbank=true
 
 . utils/parse_options.sh || exit 1;
 
@@ -120,10 +121,17 @@ if [ $stage -le 2 ] && [[ "$PWD" != *s5_6ch* ]]; then
   fi
 fi
 
-# Now make MFCC features for clean, close, and noisy data
-# mfccdir should be some place with a largish disk where you
-# want to store MFCC features.
-mfccdir=mfcc
+# Now make features for clean, close, and noisy data
+# featdir should be some place with a largish disk where you
+# want to store features.
+if [ $use_fbank == "true" ]; then
+  featdir=fbank
+  featcmd=make_fbank
+else
+  featdir=mfcc
+  featcmd=make_mfcc
+fi
+
 if [ $stage -le 3 ]; then
   if $add_enhanced_data; then
     if $eval_flag; then
@@ -139,9 +147,9 @@ if [ $stage -le 3 ]; then
     fi
   fi
   for x in $tasks; do
-    steps/make_mfcc.sh --nj 8 --cmd "$train_cmd" \
-      data/$x exp/make_mfcc/$x $mfccdir
-    steps/compute_cmvn_stats.sh data/$x exp/make_mfcc/$x $mfccdir
+    steps/$featcmd.sh --nj 8 --cmd "$train_cmd" \
+      data/$x exp/$featcmd/$x $featdir
+    steps/compute_cmvn_stats.sh data/$x exp/$featcmd/$x $featdir
   done
 fi
 
@@ -196,10 +204,17 @@ fi
 
 #####################
 #### tsting #########
-# Now make MFCC features for enhanced data
-# mfccdir should be some place with a largish disk where you
-# want to store MFCC features.
-mfccdir=mfcc/$enhan
+# Now make features for enhanced data
+# featdir should be some place with a largish disk where you
+# want to store features.
+if [ $use_fbank == "true" ]; then
+  featdir=fbank/$enhan
+  featcmd=make_fbank
+else
+  featdir=mfcc/$enhan
+  featcmd=make_mfcc
+fi
+
 if [ $stage -le 6 ]; then
   if $eval_flag; then
     tasks="dt05_real_$enhan dt05_simu_$enhan et05_real_$enhan et05_simu_$enhan"
@@ -208,9 +223,9 @@ if [ $stage -le 6 ]; then
   fi
   for x in $tasks; do
     if [ ! -e data/$x/feats.scp ]; then
-      steps/make_mfcc.sh --nj 8 --cmd "$train_cmd" \
-        data/$x exp/make_mfcc/$x $mfccdir
-      steps/compute_cmvn_stats.sh data/$x exp/make_mfcc/$x $mfccdir
+      steps/$featcmd.sh --nj 8 --cmd "$train_cmd" \
+        data/$x exp/$featcmd/$x $featdir
+      steps/compute_cmvn_stats.sh data/$x exp/$featcmd/$x $featdir
     fi
   done
 fi

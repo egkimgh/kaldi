@@ -19,12 +19,24 @@ num_threads_ubm=32
 nnet3_affix=             # affix for exp/nnet3 directory to put iVector stuff in (e.g.
                          # in the tedlium recip it's _cleaned).
 
+use_fbank=true
+
 . ./cmd.sh
 . ./path.sh
 . utils/parse_options.sh
 
 gmm_dir=exp/${gmm}
 ali_dir=exp/${gmm}_ali_${train_set}_sp
+
+if [ $use_fbank == "true" ]; then
+  featdir=fbank
+  featcmd=make_fbank
+  featcfg="--fbank-config conf/fbank.conf"
+else
+  featdir=mfcc
+  featcmd=make_mfcc
+  featcfg="--mfcc-config conf/mfcc_hires.conf"
+fi
 
 for f in data/${train_set}/feats.scp ${gmm_dir}/final.mdl; do
   if [ ! -f $f ]; then
@@ -46,15 +58,15 @@ if [ $stage -le 1 ]; then
 fi
 
 if [ $stage -le 2 ]; then
-  echo "$0: creating high-resolution MFCC features"
+  echo "$0: creating high-resolution features"
 
   # this shows how you can split across multiple file-systems.  we'll split the
-  # MFCC dir across multiple locations.  You might want to be careful here, if you
+  # feature dir across multiple locations.  You might want to be careful here, if you
   # have multiple copies of Kaldi checked out and run the same recipe, not to let
   # them overwrite each other.
-  mfccdir=data/${train_set}_sp_hires/data
-  if [[ $(hostname -f) == *.clsp.jhu.edu ]] && [ ! -d $mfccdir/storage ]; then
-    utils/create_split_dir.pl /export/b0{5,6,7,8}/$USER/kaldi-data/egs/wsj-$(date +'%m_%d_%H_%M')/s5/$mfccdir/storage $mfccdir/storage
+  featdir=data/${train_set}_sp_hires/data
+  if [[ $(hostname -f) == *.clsp.jhu.edu ]] && [ ! -d $featdir/storage ]; then
+    utils/create_split_dir.pl /export/b0{5,6,7,8}/$USER/kaldi-data/egs/wsj-$(date +'%m_%d_%H_%M')/s5/$featdir/storage $featdir/storage
   fi
 
   for datadir in ${train_set}_sp ${test_sets}; do
@@ -66,7 +78,7 @@ if [ $stage -le 2 ]; then
   utils/data/perturb_data_dir_volume.sh data/${train_set}_sp_hires
 
   for datadir in ${train_set}_sp ${test_sets}; do
-    steps/make_mfcc.sh --nj $nj --mfcc-config conf/mfcc_hires.conf \
+    steps/$featcmd.sh --nj $nj $featcfg \
       --cmd "$train_cmd" data/${datadir}_hires
     steps/compute_cmvn_stats.sh data/${datadir}_hires
     utils/fix_data_dir.sh data/${datadir}_hires
@@ -160,8 +172,8 @@ if [ $stage -le 6 ]; then
 fi
 
 if [ $stage -le 7 ]; then
-  echo "$0: making MFCC features for low-resolution speed-perturbed data (needed for alignments)"
-  steps/make_mfcc.sh --nj $nj \
+  echo "$0: making features for low-resolution speed-perturbed data (needed for alignments)"
+  steps/$featcmd.sh --nj $nj \
     --cmd "$train_cmd" data/${train_set}_sp
   steps/compute_cmvn_stats.sh data/${train_set}_sp
   echo "$0: fixing input data-dir to remove nonexistent features, in case some "
