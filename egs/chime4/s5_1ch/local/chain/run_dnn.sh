@@ -32,6 +32,8 @@ fi
 enhan=$1
 enhan_data=$2
 
+clean_trained_data=true
+
 # Set bash to 'debug' mode, it will exit on :
 # -e 'error', -u 'undefined variable', -o ... 'error in pipeline', -x 'print commands',
 set -e
@@ -92,6 +94,7 @@ fi
 # pre-train dnn
 dir=exp/tri4a_dnn_pretrain_tr05_multi_$enhan
 if [ $stage -le 4 ]; then
+  [ $clean_trained_data == "true" ] && mv -f $dir{,.backup} && echo "move $dir -> $dir.backup"
   $cuda_cmd $dir/_pretrain_dbn.log \
     steps/nnet/pretrain_dbn.sh --nn-depth 7 --rbm-iter 3 $data_fmllr/tr05_multi_$enhan $dir
 fi
@@ -103,6 +106,7 @@ ali_dev=exp/tri3b_tr05_multi_${enhan}_ali_dt05
 feature_transform=exp/tri4a_dnn_pretrain_tr05_multi_$enhan/final.feature_transform
 dbn=exp/tri4a_dnn_pretrain_tr05_multi_$enhan/7.dbn
 if [ $stage -le 5 ]; then
+  [ $clean_trained_data == "true" ] && mv -f $dir{,.backup} && echo "move $dir -> $dir.backup"
   $cuda_cmd $dir/_train_nnet.log \
     steps/nnet/train.sh --feature-transform $feature_transform --dbn $dbn --hid-layers 0 --learn-rate 0.008 \
     $data_fmllr/tr05_multi_$enhan $data_fmllr/dt05_multi_$enhan data/lang $ali $ali_dev $dir
@@ -141,6 +145,7 @@ fi
 
 # Re-train the DNN by 1 iteration of sMBR
 if [ $stage -le 8 ]; then
+  [ $clean_trained_data == "true" ] && mv -f $dir{,.backup} && echo "move $dir -> $dir.backup"
   steps/nnet/train_mpe.sh --cmd "$cuda_cmd" --num-iters 1 --acwt $acwt --do-smbr true \
     $data_fmllr/tr05_multi_${enhan} data/lang $srcdir ${srcdir}_ali ${srcdir}_denlats $dir
 fi
@@ -178,6 +183,7 @@ fi
 
 # Re-train the DNN by 4 iterations of sMBR
 if [ $stage -le 11 ]; then
+  [ $clean_trained_data == "true" ] && mv -f $dir{,.backup} && echo "move $dir -> $dir.backup"
   steps/nnet/train_mpe.sh --cmd "$cuda_cmd" --num-iters 4 --acwt $acwt --do-smbr true \
     $data_fmllr/tr05_multi_${enhan} data/lang $srcdir ${srcdir}_ali ${srcdir}_denlats $dir || exit 1
 fi
