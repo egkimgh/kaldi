@@ -24,7 +24,7 @@ else
   echo "Usage : compute_feature <mfcc|fbank|fmllr>" ; exit 1
 fi
 
-for chunk in tr05_multi_blstm_gev dt05_multi_blstm_gev et05_multi_blstm_gev; do
+for chunk in tr05_multi_blstm_gev dt05_multi_blstm_gev et05_simu_blstm_gev et05_real_blstm_gev; do
   dir=$featdir/$chunk
 
   if [ $feat == "fmllr" ]; then

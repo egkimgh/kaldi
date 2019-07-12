@@ -31,7 +31,7 @@ tdnn_decode_only=false
 # you may need to retrain from run_gmm.sh and avoid using decode-only options above
 add_enhanced_data=true
 
-use_chime3_recipe=false
+use_chime3_recipe=true
 use_fbank=true
 
 . utils/parse_options.sh || exit 1;
@@ -111,7 +111,7 @@ fi
 # The directory structure and audio files must follow the attached baseline enhancement directory
 if [ $stage -le 3 ]; then
   if [ $use_chime3_recipe == "true" ]; then
-    local/run_gmm_chime3.sh --use_fbank $use_fbank $enhancement $enhancement_data
+    local/run_gmm_chime3.sh --stage 1 --use_fbank $use_fbank $enhancement $enhancement_data
   else
     echo "mfcc"; exit 0
     local/run_gmm.sh --use_fbank $use_fbank --add-enhanced-data $add_enhanced_data \
@@ -124,7 +124,7 @@ fi
 # You may execute it after you would have promising results using GMM-based ASR experiments
 if [ $stage -le 4 ]; then
   if [ $use_chime3_recipe == "true" ]; then
-    local/chain/run_dnn.sh $enhancement $enhancement_data
+    local/run_dnn_si.sh --stage 5 --use_fbank $use_fbank $enhancement $enhancement_data
   else
     local/chain/run_tdnn.sh --use_fbank $use_fbank ---decode-only $tdnn_decode_only $enhancement
   fi
