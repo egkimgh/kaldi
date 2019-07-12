@@ -5,7 +5,7 @@
 
 feat=$1
 
-[ -z $feat ] && echo "Usage : compute_feature <mfcc|fbank|fmllr>" && exit 1
+[ -z $feat ] && echo "Usage : compute_feature <mfcc|fbank|spectrogram|fmllr>" && exit 1
 
 if [ $feat == "mfcc" ]; then
   featcmd=steps/make_mfcc  
@@ -15,13 +15,17 @@ elif [ $feat == "fbank" ]; then
   featcmd=steps/make_fbank
   featopt=
   featdir=fbank
+elif [ $feat == "spectrogram" ]; then
+  featcmd=local/make_spectrogram
+  featopt=
+  featdir=spect
 elif [ $feat == "fmllr" ]; then
   featcmd=steps/nnet/make_fmllr_feats
   featopt=
   featdir=data-fmllr-tri3b
   gmmdir=exp/tri3b_tr05_multi_noisy
 else
-  echo "Usage : compute_feature <mfcc|fbank|fmllr>" ; exit 1
+  echo "Usage : compute_feature <mfcc|fbank|spectrogram|fmllr>" ; exit 1
 fi
 
 for chunk in tr05_multi_blstm_gev dt05_multi_blstm_gev et05_simu_blstm_gev et05_real_blstm_gev; do
