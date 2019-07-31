@@ -8,7 +8,7 @@ BINFILES = add-deltas add-deltas-sdc append-post-to-feats \
            compose-transforms compute-and-process-kaldi-pitch-feats \
            compute-cmvn-stats compute-cmvn-stats-two-channel \
            compute-fbank-feats compute-kaldi-pitch-feats compute-mfcc-feats \
-           compute-plp-feats compute-spectrogram-feats concat-feats copy-feats \
+           compute-plp-feats compute-spectrogram-feats compute-dft-feats concat-feats copy-feats \
            copy-feats-to-htk copy-feats-to-sphinx extend-transform-dim \
            extract-feature-segments extract-segments feat-to-dim \
            feat-to-len fmpe-acc-stats fmpe-apply-transform fmpe-est \

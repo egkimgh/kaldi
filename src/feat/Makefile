@@ -9,7 +9,7 @@ TESTFILES = feature-mfcc-test feature-plp-test feature-fbank-test \
          resample-test online-feature-test signal-test wave-reader-test
 
 OBJFILES = feature-functions.o feature-mfcc.o feature-plp.o feature-fbank.o \
-           feature-spectrogram.o mel-computations.o wave-reader.o \
+           feature-spectrogram.o feature-dft.o mel-computations.o wave-reader.o \
            pitch-functions.o resample.o online-feature.o signal.o \
            feature-window.o
 
