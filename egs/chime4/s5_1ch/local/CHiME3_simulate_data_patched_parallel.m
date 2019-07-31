@@ -216,7 +216,7 @@ parfor utt_ind=1:length(mat),
     [nbin,nfram] = size(O);
 
     % Localize and track the speaker
-    [~,TDOAx]=localize(X);
+    [~,TDOAx]=localize(X, [1:6]);
     
     % Interpolate the spatial position over the duration of clean speech
     TDOA=zeros(nchan,nfram);
@@ -328,7 +328,7 @@ for set_ind=1:length(sets),
         [nbin,nfram] = size(O);
         
         % Localize and track the speaker
-        [~,TDOAx]=localize(X);
+        [~,TDOAx]=localize(X, [1:6]);
         
         % Interpolate the spatial position over the duration of clean speech
         TDOA=zeros(nchan,nfram);
