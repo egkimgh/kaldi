@@ -11,6 +11,7 @@ cmd=run.pl
 fbank_config=conf/fbank.conf
 compress=true
 write_utt2num_frames=false  # if true writes utt2num_frames
+channel=-1
 # End configuration section.
 
 echo "$0 $@"  # Print the command line for logging
@@ -27,6 +28,7 @@ if [ $# -lt 1 ] || [ $# -gt 3 ]; then
    echo "  --nj <nj>                                        # number of parallel jobs"
    echo "  --cmd (utils/run.pl|utils/queue.pl <queue opts>) # how to run jobs."
    echo "  --write-utt2num-frames <true|false>     # If true, write utt2num_frames file."
+   echo "  --channel <-1|0|1>                      # channel to extract (-1:expect mono, 0:left, 1:right)"
    exit 1;
 fi
 
@@ -56,6 +58,8 @@ if [ -f $data/feats.scp ]; then
   mkdir -p $data/.backup
   echo "$0: moving $data/feats.scp to $data/.backup"
   mv $data/feats.scp $data/.backup
+  echo "$0: moving $data/cmvn.scp to $data/.backup"
+  mv $data/cmvn.scp $data/.backup
 fi
 
 scp=$data/wav.scp
@@ -103,7 +107,7 @@ if [ -f $data/segments ]; then
 
   $cmd JOB=1:$nj $logdir/make_fbank_${name}.JOB.log \
     extract-segments scp,p:$scp $logdir/segments.JOB ark:- \| \
-    compute-fbank-feats $vtln_opts --verbose=2 --config=$fbank_config ark:- ark:- \| \
+    compute-fbank-feats $vtln_opts --verbose=2 --config=$fbank_config --channel=$channel ark:- ark:- \| \
     copy-feats --compress=$compress $write_num_frames_opt ark:- \
      ark,scp:$fbankdir/raw_fbank_$name.JOB.ark,$fbankdir/raw_fbank_$name.JOB.scp \
      || exit 1;
@@ -118,7 +122,7 @@ else
   utils/split_scp.pl $scp $split_scps || exit 1;
 
   $cmd JOB=1:$nj $logdir/make_fbank_${name}.JOB.log \
-    compute-fbank-feats $vtln_opts --verbose=2 --config=$fbank_config scp,p:$logdir/wav.JOB.scp ark:- \| \
+    compute-fbank-feats $vtln_opts --verbose=2 --config=$fbank_config --channel=$channel scp,p:$logdir/wav.JOB.scp ark:- \| \
     copy-feats --compress=$compress $write_num_frames_opt ark:- \
      ark,scp:$fbankdir/raw_fbank_$name.JOB.ark,$fbankdir/raw_fbank_$name.JOB.scp \
      || exit 1;
