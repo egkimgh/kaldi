@@ -31,16 +31,18 @@ set -e
 set -u
 set -o pipefail
 
-set_list="2"
+set_list="1"
 #ch_combi="1:1,3 2:4,6 3:1,4 4:3,6"
-mic_pair_list="4,6"
+mic_pair_list="1,3"
 env_list="simu real"
 chs="0 1"
 
 if [ $stage -le 1 ]; then
+  for set in $set_list; do
   for mic_pair in $mic_pair_list; do
-    local/simu_scotty_chime4_data_prep.sh $chime4_data 2 $mic_pair
-    local/real_scotty_chime4_data_prep.sh $chime4_data 2 $mic_pair
+    local/simu_scotty_chime4_data_prep.sh $chime4_data $set $mic_pair
+    local/real_scotty_chime4_data_prep.sh $chime4_data $set $mic_pair
+  done
   done
 fi
 

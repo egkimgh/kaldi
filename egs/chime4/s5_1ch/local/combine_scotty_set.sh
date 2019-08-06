@@ -15,12 +15,10 @@ stage=0 # resume training with --stage=N
 # one by copying and pasting into the shell.
 
 if [ $# -ne 1 ]; then
-  printf "\nUSAGE: %s <sets>\n\n" `basename $0`
-  echo "The argument specifies the set pair <set1 set2>"
+  printf "\nUSAGE: %s <set1,set2>\n\n" `basename $0`
+  echo "The argument specifies the set pair e.g) 1,2 --> 1_2"
   exit 1;
 fi
-
-feat=$1
 
 # Set bash to 'debug' mode, it will exit on :
 # -e 'error', -u 'undefined variable', -o ... 'error in pipeline', -x 'print commands',
@@ -28,7 +26,7 @@ set -e
 set -u
 set -o pipefail
 
-set_list="1,2"
+set_list=$1
 chs="0 1"
 
 # make mixed training set from real and simulation training data
@@ -38,12 +36,12 @@ if [ $stage -le 0 ]; then
   set1=`echo ${set_list} | awk -F"," '{ print $1}'`
   set2=`echo ${set_list} | awk -F"," '{ print $2}'`
     for task in tr05 dt05 et05_real; do
-      outdir=${task}_scotty_set_${set1}_${set2}
+      outdir=`echo ${task}_scotty_set_${set1}_${set2} | tr -s \_ _` # remove multiple occurance of '_'
       for ch in $chs; do
         echo $outdir
         cp -v data/${task}_scotty_set${set1}/feats{.ch${ch}.scp,.scp} 
-        cp -v data/${task}_scotty_set${set1}/feats{.ch${ch}.scp,.scp} 
-        cp -v data/${task}_scotty_set${set2}/cmvn{.ch${ch}.scp,.scp} 
+        cp -v data/${task}_scotty_set${set1}/cmvn{.ch${ch}.scp,.scp} 
+        cp -v data/${task}_scotty_set${set2}/feats{.ch${ch}.scp,.scp} 
         cp -v data/${task}_scotty_set${set2}/cmvn{.ch${ch}.scp,.scp} 
         utils/combine_data.sh data/$outdir data/${task}_scotty_set${set1} data/${task}_scotty_set${set2}
         #cp -v data/$outdir/feats{.scp,.ch${ch}.scp}

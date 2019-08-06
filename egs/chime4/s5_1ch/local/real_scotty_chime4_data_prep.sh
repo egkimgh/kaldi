@@ -46,8 +46,7 @@ echo "extract channels (CH[${ch}].wav) for noisy data"
 
 wavdir=`pwd`/scotty
 dir=`pwd`/data/local/data
-lmdir=`pwd`/data/local/nist_lm
-mkdir -p $dir $lmdir
+mkdir -p $dir $wavdir
 local=`pwd`/local
 utils=`pwd`/utils
 odir=`pwd`/data
